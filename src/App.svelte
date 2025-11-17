@@ -1,43 +1,61 @@
 <script lang="ts">
-  import { Geolocation } from '@capacitor/geolocation'
   import { onMount } from 'svelte'
+  import { Geolocation } from '@capacitor/geolocation'
+  import { Router, type RouteConfig } from "@mateothegreat/svelte5-router";
+  import "@maptiler/sdk/dist/maptiler-sdk.css";
+  import User from './user';
+  
+  import Navbar from './components/Navbar.svelte';
+  import Home from './routes/Home.svelte';
+  import Params from './routes/Params.svelte';
+  import { writable } from 'svelte/store';
 
-  // Use plain reactive variables so Svelte updates the template when values change.
-  let latitude: number = 0
-  let longitude: number = 0
-  let error: string | null = null
-
-  async function getPos() {
-    try {
-      const coordinates = await Geolocation.getCurrentPosition({timeout: 30000})
-      // Assignments to top-level variables are reactive in Svelte
-      latitude = coordinates.coords.latitude
-      longitude = coordinates.coords.longitude
-      error = null
-    } catch (e: any) {
-      error = 'Error getting location: ' + (e?.message ?? String(e))
-    }
+  const user : User = new User("test", false);
+  const stored = localStorage.getItem('user');
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    user.typeVehicule = parsed.typeVehicule;
+    user.handicap = parsed.handicap;
   }
+  const UserContent = writable(user);
+  UserContent.subscribe(value => {
+    localStorage.setItem('user', JSON.stringify(value));
+  });
 
-  // Optional: auto-request on mount (commented out by default)
-  onMount(() => {
+  const routes: RouteConfig[] = [
+    {
+      component: Home
+    },
+    {
+      path: "parametres",
+      component: Params,
+      props: {
+        UserContent
+      }
+    }
+  ];
+
+  const deviceHeight = window.innerHeight;
+  const deviceWidth = window.innerWidth;
+  let openSideMenu = false;
+
+  onMount(async() => {
     try {
-      Geolocation.checkPermissions().then((result) => {
+      Geolocation.checkPermissions().then(async (result) => {
         if (result.location !== 'granted') {
-          Geolocation.requestPermissions()
+          await Geolocation.requestPermissions();
         }
       })
     } catch (e) {
-      error = "Please enable location services."
+      console.error('Error checking/requesting permissions', e)
     }
   })
 </script>
 
-<main>
-  <h1>Geolocation Example</h1>
-  <p>Latitude: {latitude}, Longitude: {longitude}</p>
-  <button on:click={getPos}>Get Position</button>
-  {#if error}
-    <p style="color:crimson">{error}</p>
-  {/if}
+<main class="flex flex-col justify-center items-center" style="height: {deviceHeight}px; width: {deviceWidth}px; ">
+
+  <Navbar bind:open={openSideMenu} />
+
+  <Router {routes} />
+
 </main>
