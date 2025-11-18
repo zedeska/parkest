@@ -18,7 +18,7 @@ class Position {
     // Starts a watcher and returns the watcher id (if available).
     // Uses higher-accuracy options to improve update frequency on mobile.
     async setWatcher(callback: (latitude: number, longitude: number) => void): Promise<string | null> {
-        const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0, minimumUpdateInterval: 1000 } as any;
+        const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 1000 } as any;
 
         this.watcherId = await Geolocation.watchPosition(options, (position, err) => {
             if (err) {
@@ -33,7 +33,6 @@ class Position {
 
             this.latitude = position.coords.latitude;
             this.longitude = position.coords.longitude;
-            console.log('Watcher position update:', this.latitude, this.longitude);
             try {
                 callback(this.latitude, this.longitude);
             } catch (cbErr) {

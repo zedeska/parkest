@@ -4,11 +4,19 @@
   import { Router, type RouteConfig } from "@mateothegreat/svelte5-router";
   import "@maptiler/sdk/dist/maptiler-sdk.css";
   import User from './user';
+  import Position from './position';
+  import Map from './map';
+  import { Parking } from './parking';
+  import { LngLat } from '@maptiler/sdk';
   
   import Navbar from './components/Navbar.svelte';
   import Home from './routes/Home.svelte';
   import Params from './routes/Params.svelte';
   import { writable } from 'svelte/store';
+
+  const position: Position = new Position();
+  const map = new Map('map');
+  const parking = new Parking();
 
   const user : User = new User("test", false);
   const stored = localStorage.getItem('user');
@@ -41,7 +49,7 @@
 
   onMount(async() => {
     try {
-      Geolocation.checkPermissions().then(async (result) => {
+      await Geolocation.checkPermissions().then(async (result) => {
         if (result.location !== 'granted') {
           await Geolocation.requestPermissions();
         }
@@ -49,6 +57,14 @@
     } catch (e) {
       console.error('Error checking/requesting permissions', e)
     }
+    await position.getPosition();
+    map.longitude = position.longitude;
+    map.latitude = position.latitude;
+    map.loadMap();
+    position.setWatcher(map.setPosition.bind(map));
+    await parking.fetchParkings();
+    map.setParkingMarkers(parking.getNearParkings(new LngLat(position.longitude, position.latitude)));
+    
   })
 </script>
 

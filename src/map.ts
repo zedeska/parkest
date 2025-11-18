@@ -6,18 +6,19 @@ class Map {
     longitude: number = 0;
     latitude: number = 0;
     containerId: string = '';
-
+    markers: maptilersdk.Marker[] = [];
     constructor(containerId: string) {
         this.containerId = containerId;
         maptilersdk.config.apiKey = this.API_KEY;
     }
 
-    laodMap() {
+    loadMap() {
         this.map = new maptilersdk.Map({
             container: this.containerId, // container's id or the HTML element to render the map
             style: maptilersdk.MapStyle.STREETS,
             geolocateControl: false,
             zoom: 16,
+            center: [this.longitude, this.latitude]
         });
 
         this.map.on('load', () => {
@@ -25,7 +26,7 @@ class Map {
                     'type': 'geojson',
                     'data': {
                         'type': 'Point',
-                        'coordinates': [0, 0]
+                        'coordinates': [this.longitude, this.latitude]
                     }
                 });
 
@@ -43,10 +44,9 @@ class Map {
 
     setPosition(latitude: number, longitude: number) {
         if (this.map.loaded()) {
-            console.log('Map position update:', latitude, longitude);
             this.latitude = latitude;
             this.longitude = longitude;
-            this.map.setCenter([this.longitude, this.latitude]);
+            //this.map.setCenter([this.longitude, this.latitude]);
             const source: maptilersdk.GeoJSONSource = this.map.getSource('point') as maptilersdk.GeoJSONSource;
             source.setData({
                 'type': 'Point',
@@ -62,6 +62,18 @@ class Map {
     setLongitudeLatitude(longitude: number, latitude: number) {
         this.longitude = longitude;
         this.latitude = latitude;
+    }
+
+    setParkingMarkers(parkings: any[]) {
+        this.markers = parkings.map(parking => {
+            const popup = new maptilersdk.Popup({ offset: 25 }).setText(
+            `${parking.lib} - ${parking.type}\nPlaces disponibles: ${parking.place_dispo}/${parking.place_tot}\nCoût: ${parking.cout}`
+        );
+            return new maptilersdk.Marker()
+            .setLngLat([parking.coordinates.longitude, parking.coordinates.lattitude])
+            .setPopup(popup)
+            .addTo(this.map);
+        });
     }
 }
 
