@@ -5,7 +5,7 @@
 
 </script>
 
-<nav class="absolute left-1 top-0 z-20">
+<nav class="absolute left-1 top-1 z-20 bg-white p-2 rounded-md flex gap-4">
     <button class="cursor-pointer" on:click={() => open = !open}><i class="fa-solid fa-bars"></i></button>
     <button class="cursor-pointer" on:click={() => goto("/")} ><i class="fa-solid fa-house"></i></button>
 </nav>
