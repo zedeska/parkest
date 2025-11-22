@@ -1,11 +1,13 @@
 class User{
 
     typeVehicule: string;
-    handicap: boolean;
+    pmr: boolean;
+    dspOnly: boolean;
     
-    constructor(typeVehicule: string, handicap: boolean){
+    constructor(typeVehicule: string, pmr: boolean, dspOnly: boolean){
         this.typeVehicule = typeVehicule;
-        this.handicap = handicap;
+        this.pmr = pmr;
+        this.dspOnly = dspOnly;
     }
 }
 

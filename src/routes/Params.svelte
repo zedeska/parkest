@@ -10,6 +10,9 @@
         <option value="">{$UserContent.typeVehicule}</option>
     </select>
 
-    <label for="">Handicap ?</label>
-    <input type="checkbox" name="" id="" bind:checked={$UserContent.handicap}/>
+    <label for="">PMR (Mobilité réduite)</label>
+    <input type="checkbox" name="" id="" bind:checked={$UserContent.pmr}/>
+
+    <label for="">Afficher uniquement parking avec disponibilité</label>
+    <input type="checkbox" name="" id="" bind:checked={$UserContent.dspOnly}/>
 </div>

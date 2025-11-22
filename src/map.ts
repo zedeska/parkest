@@ -1,5 +1,6 @@
 import * as maptilersdk from '@maptiler/sdk';
 import Routing from './routing';
+import { routingState } from './stores/routingStore';
 
 class Map {
     map: maptilersdk.Map = {} as maptilersdk.Map;
@@ -10,6 +11,8 @@ class Map {
     latitude: number = 0;
     containerId: string = '';
     markers: maptilersdk.Marker[] = [];
+
+
     constructor(containerId: string) {
         this.containerId = containerId;
         maptilersdk.config.apiKey = this.API_KEY;
@@ -105,8 +108,14 @@ class Map {
             const btn = document.createElement('button');
             btn.innerText = 'Y aller';
             btn.style.marginTop = '8px';
+            btn.style.backgroundColor = '#27aed4ff';
+            btn.style.color = 'white';
+            btn.style.border = 'none';
+            btn.style.padding = '8px 12px';
+            btn.style.borderRadius = '4px';
+            btn.style.cursor = 'pointer';
             btn.onclick = () => {
-                this.drawRoute(parking.coordinates.longitude, parking.coordinates.lattitude);
+                this.drawRoute(parking.coordinates.longitude, parking.coordinates.lattitude, parking.lib);
             };
             div.appendChild(btn);
 
@@ -118,11 +127,37 @@ class Map {
         });
     }
 
-    async drawRoute(destLng: number, destLat: number) {
+    clearParkingMarkers() {
+        if (this.markers) {
+            this.markers.forEach(marker => marker.remove());
+        }
+        this.markers = [];
+    }
+
+    clearRoute() {
+        if (this.map && this.map.getSource && this.map.getSource('route')) {
+            const source = this.map.getSource('route') as maptilersdk.GeoJSONSource;
+            source.setData({
+                'type': 'Feature',
+                'properties': {},
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': []
+                }
+            });
+        }
+    }
+
+    async drawRoute(destLng: number, destLat: number, destinationName: string = 'Destination') {
         if (this.longitude === 0 && this.latitude === 0) {
             console.error("User position not set");
             return;
         }
+
+        routingState.set({
+            isVisible: true,
+            destination: destinationName
+        });
 
         const geometry = await this.routing.getRoute(
             { lat: this.latitude, lng: this.longitude },

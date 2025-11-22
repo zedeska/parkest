@@ -11,7 +11,7 @@
 </nav>
 
 <aside class:open class="bg-black/50 w-full h-full" on:click={() => open = false}>
-    <div class="w-1/3 bg-white h-full flex flex-col" on:click|stopPropagation>
+    <div class="w-1/4 margin-3 rounded-lg bg-white h-full flex flex-col" on:click|stopPropagation>
         <div>
             <button class="cursor-pointer relative left-1 top-0" on:click={() => open = false}><i class="fa-solid fa-xmark"></i></button>
         </div>
