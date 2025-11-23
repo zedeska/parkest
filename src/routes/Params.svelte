@@ -4,15 +4,22 @@
     
 </script>
 
-<div class="flex flex-col justify-center items-center">
-    <label for="">Type de véhicule</label>
-    <select name="" id="">
-        <option value="">{$UserContent.typeVehicule}</option>
-    </select>
+<div class="flex flex-col justify-center items-center border-2 border-blue-500 p-5 rounded-lg bg-white shadow-lg space-y-4">
+    
+    <h1 class="text-3xl font-bold">Paramètres</h1>
 
-    <label for="">PMR (Mobilité réduite)</label>
-    <input type="checkbox" name="" id="" bind:checked={$UserContent.pmr}/>
+    <div class="flex flex-row gap-3">
+        <label for=""><h2 class="text-xl">Hauteur du véhicule (en centimètres) :</h2></label>
+        <input type="number" placeholder="ex: 136" min="100" max="500" bind:value={$UserContent.hauteur}>
+    </div>
 
-    <label for="">Afficher uniquement parking avec disponibilité</label>
-    <input type="checkbox" name="" id="" bind:checked={$UserContent.dspOnly}/>
+    <div class="flex flex-row gap-3">
+        <label for=""><h2 class="text-xl">PMR (Mobilité réduite) :</h2></label>
+        <input type="checkbox" name="" id="" bind:checked={$UserContent.pmr}/>
+    </div>
+    
+    <div class="flex flex-row gap-3">
+        <label for=""><h2 class="text-xl">Uniquement parking avec disponibilité :</h2></label>
+        <input type="checkbox" name="" id="" bind:checked={$UserContent.dspOnly}/>
+    </div>
 </div>

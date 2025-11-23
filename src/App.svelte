@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
   import { Geolocation } from '@capacitor/geolocation'
   import { Router, type RouteConfig } from "@mateothegreat/svelte5-router";
   import "@maptiler/sdk/dist/maptiler-sdk.css";
@@ -8,7 +7,6 @@
   import Map from './map';
   import { Parking } from './parking';
   import { LngLat } from '@maptiler/sdk';
-  import Routing from './components/Routing.svelte';
   
   import Navbar from './components/Navbar.svelte';
   import Home from './routes/Home.svelte';
@@ -18,12 +16,12 @@
   import { routingState } from './stores/routingStore';
   import { mapStore } from './stores/mapStore';
 
-  const user : User = new User("test", false, false);
+  const user : User = new User(136, false, false);
   const stored = localStorage.getItem('user');
 
   if (stored) {
     const parsed = JSON.parse(stored);
-    user.typeVehicule = parsed.typeVehicule;
+    user.hauteur = parsed.hauteur;
     user.pmr = parsed.pmr;
     user.dspOnly = parsed.dspOnly;
   }
@@ -110,6 +108,7 @@
       map.loadMap();
       position.setWatcher(map.setPosition.bind(map));
       await parking.fetchParkings();
+      console.log(parking.parkings.length + ' parkings loaded');
       map.setParkingMarkers(parking.getNearParkings(new LngLat(position.longitude, position.latitude), $UserContent.dspOnly));
     } else {
       map.loadMap();
@@ -121,8 +120,13 @@
       if (parking.parkings.length === 0) {
          await parking.fetchParkings();
       }
-      
       map.setParkingMarkers(parking.getNearParkings(new LngLat(position.longitude, position.latitude), $UserContent.dspOnly));
+
+      const routeState = get(routingState);
+      if (routeState.isVisible && routeState.LngLat) {
+        console.log('Redrawing route on existing map');
+        map.drawRoute(routeState.LngLat.lng, routeState.LngLat.lat, routeState.destination);
+      }
     }
   }
 </script>

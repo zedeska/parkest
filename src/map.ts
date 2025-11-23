@@ -12,7 +12,6 @@ class Map {
     containerId: string = '';
     markers: maptilersdk.Marker[] = [];
 
-
     constructor(containerId: string) {
         this.containerId = containerId;
         maptilersdk.config.apiKey = this.API_KEY;
@@ -116,6 +115,7 @@ class Map {
             btn.style.cursor = 'pointer';
             btn.onclick = () => {
                 this.drawRoute(parking.coordinates.longitude, parking.coordinates.lattitude, parking.lib);
+                popup.remove();
             };
             div.appendChild(btn);
 
@@ -146,6 +146,12 @@ class Map {
                 }
             });
         }
+        // Reset the store
+        routingState.set({
+            isVisible: false,
+            destination: '',
+            LngLat: { lng: 0, lat: 0 }
+        });
     }
 
     async drawRoute(destLng: number, destLat: number, destinationName: string = 'Destination') {
@@ -154,9 +160,29 @@ class Map {
             return;
         }
 
+        // Check if the destination is in the current markers list
+        const isKnownDestination = this.markers.some(marker => {
+            const lngLat = marker.getLngLat();
+            // Use a small epsilon for float comparison or exact match if data comes from same source
+            return Math.abs(lngLat.lng - destLng) < 0.000001 && Math.abs(lngLat.lat - destLat) < 0.000001;
+        });
+
+        if (!isKnownDestination) {
+            this.clearRoute();
+            return;
+        }
+
+        // Wait for map to be loaded before trying to add source/layer
+        if (!this.map.loaded()) {
+            await new Promise<void>(resolve => {
+                this.map.once('load', () => resolve());
+            });
+        }
+
         routingState.set({
             isVisible: true,
-            destination: destinationName
+            destination: destinationName,
+            LngLat: { lng: destLng, lat: destLat }
         });
 
         const geometry = await this.routing.getRoute(

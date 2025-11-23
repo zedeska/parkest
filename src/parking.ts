@@ -5,19 +5,22 @@ export class Parking {
     parkings : any[] = [];
 
     getNearParkings(position: LngLat, dspOnly: boolean, radius: number = 3000) {
-        let nearbyParkings
+        let nearbyParkings = [];
+        
+        const dspParkings = this.parkingsDsp.filter(parking => {
+            const parkingPos = new LngLat(parking.coordinates.longitude, parking.coordinates.lattitude);
+            const distance = position.distanceTo(parkingPos);
+            return distance <= radius;
+        });
+        nearbyParkings.push(...dspParkings);
+
         if (!dspOnly) {
-            nearbyParkings = this.parkingsDsp.filter(parking => {
+            const otherParkings = this.parkings.filter(parking => {
                 const parkingPos = new LngLat(parking.coordinates.longitude, parking.coordinates.lattitude);
                 const distance = position.distanceTo(parkingPos);
                 return distance <= radius;
             });
-        } else {
-            nearbyParkings = this.parkings.filter(parking => {
-                const parkingPos = new LngLat(parking.coordinates.longitude, parking.coordinates.lattitude);
-                const distance = position.distanceTo(parkingPos);
-                return distance <= radius;
-            });
+            nearbyParkings.push(...otherParkings);
         }
         return nearbyParkings;
     }
@@ -43,7 +46,7 @@ export class Parking {
         const data = await response.json();
         for (let feature of data.features) {
             if (feature.properties.place_libre === null || feature.properties.place_total === null) {
-                this.parkingsDsp.push({
+                this.parkings.push({
                 id: feature.id,
                 type: feature.properties.typ,
                 lib: feature.properties.lib,
@@ -57,7 +60,7 @@ export class Parking {
             });
                 continue;
             };
-            this.parkings.push({
+            this.parkingsDsp.push({
                 id: feature.id,
                 type: feature.properties.typ,
                 lib: feature.properties.lib,

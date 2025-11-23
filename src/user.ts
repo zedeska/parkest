@@ -1,11 +1,11 @@
 class User{
 
-    typeVehicule: string;
+    hauteur: number;
     pmr: boolean;
     dspOnly: boolean;
     
-    constructor(typeVehicule: string, pmr: boolean, dspOnly: boolean){
-        this.typeVehicule = typeVehicule;
+    constructor(hauteur: number, pmr: boolean, dspOnly: boolean){
+        this.hauteur = hauteur;
         this.pmr = pmr;
         this.dspOnly = dspOnly;
     }
